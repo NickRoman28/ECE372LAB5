@@ -25,9 +25,6 @@ void initPWM3(void)
 
     // set the prescaler equal to 1
     // this way we can use a top value of 1023 to get 15,625Hz using lecture 13 DC motor formula
-    TCCR3B |= (1 << CS30);
-    TCCR3B &= ~((1 << CS31) | (1 << CS32));
-
     //table 17-6, set prescaler to 1
     TCCR4B |= (1<<CS40);
    
