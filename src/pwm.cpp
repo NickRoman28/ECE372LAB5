@@ -7,8 +7,8 @@
 void initPWM3(void)
 {
     // we have to edit the OCRnA registers
-     // digital pin 5 (GOOD)
-    DDRE |= (1 << DDE3);
+     // digital pin 6 which uses timer 4 (GOOD)
+    DDRE |= (1 << DDH3);
 
     // Clear timer registers first using timer3
     TCCR4A = 0x00;
