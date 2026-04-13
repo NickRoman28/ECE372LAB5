@@ -7,8 +7,8 @@
 void initPWM3(void)
 {
     // we have to edit the OCRnA registers
-     // digital pin 6 which uses timer 4 (GOOD)
-    DDRE |= (1 << DDH3);
+     // digital pin 6 to output which uses timer 4 (GOOD)
+    DDRH |= (1 << DDH3);
 
     // Clear timer registers first using timer3
     TCCR4A = 0x00;
@@ -30,7 +30,7 @@ void initPWM3(void)
 
     //table 17-6, set prescaler to 1
     TCCR4B |= (1<<CS40);
-    DDRH |= (1<<DDH5); //Set Pin 8 on board to output, which is OC4C, PORTH5, PWM}
+   
 
     // starts at 0% duty cycle (NEED TO FIX POSSIBLY, )
     OCR4A = 0;
