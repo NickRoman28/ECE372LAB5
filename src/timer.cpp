@@ -8,7 +8,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-extern volatile unsigned char second;
+extern volatile unsigned char ms;
 //You many use any timer you wish for the microsecond delay and the millisecond delay
 
 
@@ -20,7 +20,7 @@ void initTimer1(){
     TCCR1B |=  (1 << WGM12);
 
     // sets the compare value for 1us clock with prescaler 1
-    OCR1A = 62499;
+    OCR1A = 249;
     // start with the timer being off 
     TCCR1B &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 
@@ -36,7 +36,7 @@ void initTimer1(){
 
 /* This delays the program an amount of microseconds specified by unsigned int delay.
 */
-void delaySeconds(unsigned int delay){
+void delayms(unsigned int delay){
     // start timer with prescaler 1
     TCCR1B = (TCCR1B & ~((1 << CS12) | (1 << CS11) | (1 << CS10))) | (1 << CS12);
 
@@ -82,51 +82,3 @@ ISR(TIMER1_COMPA_vect) {
 
 
 
-/* Initialize timer 0, you should not turn the timer on here.
-* You will need to use CTC mode */
-void initTimer0(){
-    // LECTURE 7 CODE
-    TCCR0A &= ~(1 << WGM00);
-    TCCR0A |= (1 << WGM01);
-    TCCR0B &= ~(1 << WGM02);
-
-    // sET THE BITS FOR THE prescaller
-    // LECTURE 7 CODE
-    // SETS THE BITS FOR 64 
-    // TCCR0B|=(1 << CS00);
-    // TCCR0B|=(1 << CS01);
-    // TCCR0B&=~(1 << CS02);
-
-    // set prescaler bits here to 0 since it automatically starts the timer
-    TCCR0B = 0;
-    OCR0A = 249;
-    // clear flag
-    TIFR0 |= (1 << OCF0A);  
-}
-
-/* This delays the program an amount specified by unsigned int delay.
-* Use timer 0. Keep in mind that you need to choose your prescalar wisely
-* such that your timer is precise to 1 millisecond and can be used for
-* 100-2000 milliseconds
-*/
-void delayMs(unsigned int delay){
-   unsigned int delayCnt = 0;
-    // sets the bits for the prescaler
-     TCCR0B = (1 << CS01) | (1 << CS00);
-
-     // starts the timer at 0
-    TCNT0 = 0; 
-
-    // sets the compare flab
-    TIFR0 |= (1 << OCF0A); 
-    while (delayCnt < delay) {
-        if (TIFR0 & (1 << OCF0A)) { 
-            // for timer reaching max value
-            delayCnt++;
-             TCNT0 = 0; 
-            TIFR0 |= (1 << OCF0A);
-        // restart the timer
-        }
-    } 
-    TCCR0B = 0; 
-}
