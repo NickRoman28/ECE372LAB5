@@ -10,7 +10,10 @@ void initPWM(void)
      // digital pin 6 to output which uses timer 4 (GOOD)
     DDRH |= (1 << DDH3);
 
-    // Clear timer registers first using timer3
+    //CHECK 
+
+    
+    // Clear timer 4 registers 
     TCCR4A = 0x00;
     TCCR4B = 0x00;
 
@@ -38,16 +41,22 @@ void incFrequency(unsigned int frequency) {
 OCR4A = 16000000 / frequency; //update the TOP based on the new frequency
 OCR4C=0.5*OCR4A;// update the OCR4C to make sure the Duty cycle stay the same
 }
-
-//below is what we used in lab 4 for fixed freq
-/* void changeDutyCycle(unsigned int adcVal)
+ void setFrequency(unsigned int frequency)
 {
-    // set the value to a 10 bit range
-    if (adcVal > 1023)
+    unsigned long top;
+
+    if (frequency == 0)
     {
-        adcVal = 1023;
+        OCR4A = 0;
+        OCR4C = 0;
+        return;
     }
 
-    // takes the adc value and converts it into PWM duty cycle
-    OCR3A = adcVal;
-} */
+    // PWM frequency formula:
+    // f = 16 MHz / (N * (1 + TOP))
+    // here N = 1
+    top = (16000000UL / frequency) - 1;
+
+    OCR4A = (unsigned int)top;  // sets frequency
+    OCR4C = OCR4A / 2;          // 50% duty cycle
+}
