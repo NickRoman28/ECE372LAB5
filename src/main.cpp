@@ -16,6 +16,13 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+      //plays sound on buzzer, NEED TO MAKE SURE THIS FREUQNECY RANGE IS RIGHT
+      for (unsigned int f = 500; f <= 3000; f += 50)
+    {
+        setFrequency(f);
+        delayMs(20);
+    }
 }
 
 // put function definitions here:
