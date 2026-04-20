@@ -4,7 +4,7 @@
 #include <avr/io.h>
 #include "pwm.h"
 
-void initPWM3(void)
+void initPWM(void)
 {
     // we have to edit the OCRnA registers
      // digital pin 6 to output which uses timer 4 (GOOD)
