@@ -3,5 +3,6 @@
 
 void initPWM(void);
 void incFrequency(unsigned int frequency);
+void setFrequency(unsigned int frequency);
 
 #endif
