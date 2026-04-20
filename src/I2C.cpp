@@ -1,5 +1,6 @@
 #include <avr/io.h>
 
+// turn I2C hardware on
 void InitI2C() {
   // Set SCL frequency to 100kHz
   TWSR = 0x00; // Prescaler value = 1
@@ -24,6 +25,7 @@ void StartI2C_Trans(unsigned char SLA) {
     while (!(TWCR & (1 << TWINT)));
 }
 
+// sends the data to the sensor after telling it which register to read from
 void Write(unsigned char data) {
   // Load data into TWDR Register. Clear TWINT bit in TWCR to start transmission of data
   TWDR = data; // Load data into TWDR Register
@@ -35,7 +37,27 @@ void Write(unsigned char data) {
 void StopI2C_Trans() {
   // Transmit STOP condition
   TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
-  // Wait for STOP condition to be transmitted
-  while (TWCR & (1 << TWSTO));
+}
+
+// tells the sensor which register to read from
+void Read_from(unsigned char SLA, unsigned char MEMADDRESS) {
+    StartI2C_Trans(SLA);          // SLA + W
+    Write(MEMADDRESS);            // register address
+
+    // Repeated START
+    TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
+    while (!(TWCR & (1 << TWINT)));
+
+    // SLA + R
+    TWDR = (SLA << 1) | 0x01;
+    TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
+    while (!(TWCR & (1 << TWINT)));
+}
+
+// reads the data from the sensor after telling it which register to read from
+unsigned char Read_data() {
+    TWCR = (1 << TWINT) | (1 << TWEN);
+    while (!(TWCR & (1 << TWINT)));
+    return TWDR;
 }
 
