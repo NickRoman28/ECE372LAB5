@@ -235,10 +235,10 @@ void updateDisplayState() {
     previousState = displayState;
 
     if (displayState == DISPLAY_SMILEY) {
-        displaySmiley();
+        displaySmile();
       } 
       else {
-        displayFrowny();
+        displayFrown();
       }
     }
 }
