@@ -2,7 +2,7 @@
 #include "spi.h"
 
 // LECTURE 21 CODE FOR SPI COMMUNICATION WITH ADXL345 ACCELEROMETER
-void InitSPI(void) {
+void initSPI(void) {
     // set the SS, MOSI, and SCLK pin as output
     DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2);
     // set the MISO pin as input
@@ -23,6 +23,12 @@ void InitSPI(void) {
     SPCR &= ~(1 <<DORD);
     // disable the SPI interrupt (not using ISRs)
     SPCR &= ~(1 << SPIE);
+
+    SPI_Send16(0x09, 0x00);
+    SPI_Send16(0x0a, 0x03);
+    SPI_Send16(0x0b, 0x07);
+    SPI_Send16(0x0c, 0x01);
+    SPI_Send16(0x0f, 0x00);
 }
 
 void SPI_Write(unsigned char data) {
@@ -44,15 +50,6 @@ void SPI_Send16(unsigned char address, unsigned char data) {
     while (!(SPSR & (1 << SPIF)));
 
     PORTB |= (1 << PORTB0);    // SS HIGHz
-}
-//Claude recommendation (this init is separete from the last)
-void initSPI() {
-    InitSPI();
-    SPI_Send16(0x09, 0x00); // no BCD decode
-    SPI_Send16(0x0a, 0x03); // brightness
-    SPI_Send16(0x0b, 0x07); // scan all 8 rows
-    SPI_Send16(0x0c, 0x01); // normal operation
-    SPI_Send16(0x0f, 0x00); // no test mode
 }
 
 void displaySmile() {
