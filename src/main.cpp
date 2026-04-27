@@ -7,7 +7,7 @@
 #include "switch.h"
 #include "I2C.h"
 
-// MPU6050 info
+// MPU6050 registers
 #define MPU6050_SLA 0x68
 #define PWR_MGMT_1  0x6B
 
@@ -18,30 +18,30 @@
 #define ACCEL_ZOUT_H 0x3F
 #define ACCEL_ZOUT_L 0x40
 
-// Adjust these after testing actual Serial readings
+// Change these after checking Serial Monitor values
 #define Y_TILT_THRESHOLD 11500
 #define Z_TILT_THRESHOLD 11500
 
-// From timer.cpp ISR
+// Timer1 millisecond flag from timer.cpp
 volatile unsigned char ms = 0;
 
-// Set by INT0 button interrupt
-volatile bool switchInterruptFlag = false;
-
-// Used for software timing
+// Software time counter
 unsigned long systemMs = 0;
 unsigned long lastSerialPrint = 0;
 unsigned long lastChirpUpdate = 0;
-
-// Alarm latch
-bool alarmTriggered = false;
 
 // Accelerometer values
 int16_t accelX = 0;
 int16_t accelY = 0;
 int16_t accelZ = 0;
 
-// -------------------- Display State Machine --------------------
+// Alarm latch
+bool alarmTriggered = false;
+
+// Button event after debounce
+bool buttonEvent = false;
+
+// ---------------- Display State Machine ----------------
 
 enum DisplayState {
   DISPLAY_SMILEY,
@@ -50,46 +50,61 @@ enum DisplayState {
 
 DisplayState displayState = DISPLAY_SMILEY;
 
-// -------------------- Debounce State Machine --------------------
+// ---------------- Switch Debounce State Machine ----------------
 
-enum DebounceState {
-  DB_IDLE,
-  DB_DEBOUNCE_PRESS,
-  DB_WAIT_RELEASE,
-  DB_DEBOUNCE_RELEASE
+enum SwitchState {
+  SWITCH_WAIT_PRESS,
+  SWITCH_DEBOUNCE_PRESS,
+  SWITCH_WAIT_RELEASE,
+  SWITCH_DEBOUNCE_RELEASE
 };
 
-DebounceState debounceState = DB_IDLE;
-unsigned long debounceStartTime = 0;
-bool buttonEvent = false;
+volatile SwitchState switchState = SWITCH_WAIT_PRESS;
+unsigned long switchTime = 0;
 
-// -------------------- Function Prototypes --------------------
-
-// These functions need to exist in spi.cpp
-void initSPI();
-void displaySmiley();
-void displayFrowny();
+// ---------------- Function Prototypes ----------------
 
 unsigned char readMPURegister(unsigned char reg);
 int16_t combineBytes(unsigned char highByte, unsigned char lowByte);
 void readAccelerometer();
-void updateDisplayState();
-void updateDebounceState();
-void updateAlarm();
 void wakeUpMPU6050();
 
-// -------------------- Interrupts --------------------
+void updateSwitchState();
+void updateDisplayState();
+void updateAlarm();
+
+// These should exist in spi.cpp
+void initSPI();
+void displaySmiley();
+void displayFrowny();
+
+// ---------------- ISR ----------------
 
 ISR(INT0_vect) {
-  switchInterruptFlag = true;
+  switch (switchState) {
+
+    case SWITCH_WAIT_PRESS:
+      switchState = SWITCH_DEBOUNCE_PRESS;
+      switchTime = systemMs;
+      break;
+
+    case SWITCH_WAIT_RELEASE:
+      switchState = SWITCH_DEBOUNCE_RELEASE;
+      switchTime = systemMs;
+      break;
+
+    default:
+      break;
+  }
 }
 
-// -------------------- Setup --------------------
+// ---------------- Setup ----------------
 
 void setup() {
   Serial.begin(9600);
 
   InitI2C();
+
   initTimer1();
   startTimer1();
 
@@ -106,7 +121,7 @@ void setup() {
   wakeUpMPU6050();
 }
 
-// -------------------- Loop --------------------
+// ---------------- Main Loop ----------------
 
 void loop() {
   if (ms) {
@@ -116,7 +131,7 @@ void loop() {
 
   readAccelerometer();
 
-  updateDebounceState();
+  updateSwitchState();
 
   if (buttonEvent) {
     buttonEvent = false;
@@ -143,7 +158,7 @@ void loop() {
   }
 }
 
-// -------------------- MPU6050 Functions --------------------
+// ---------------- MPU6050 ----------------
 
 void wakeUpMPU6050() {
   StartI2C_Trans(MPU6050_SLA);
@@ -178,7 +193,33 @@ void readAccelerometer() {
   accelZ = combineBytes(zHigh, zLow);
 }
 
-// -------------------- Display State Machine --------------------
+// ---------------- Switch State Machine ----------------
+
+void updateSwitchState() {
+  switch (switchState) {
+
+    case SWITCH_WAIT_PRESS:
+      break;
+
+    case SWITCH_DEBOUNCE_PRESS:
+      if (systemMs - switchTime >= 25) {
+        buttonEvent = true;
+        switchState = SWITCH_WAIT_RELEASE;
+      }
+      break;
+
+    case SWITCH_WAIT_RELEASE:
+      break;
+
+    case SWITCH_DEBOUNCE_RELEASE:
+      if (systemMs - switchTime >= 25) {
+        switchState = SWITCH_WAIT_PRESS;
+      }
+      break;
+  }
+}
+
+// ---------------- Display State Machine ----------------
 
 void updateDisplayState() {
   static DisplayState previousState = DISPLAY_SMILEY;
@@ -200,42 +241,7 @@ void updateDisplayState() {
   }
 }
 
-// -------------------- Debounce State Machine --------------------
-
-void updateDebounceState() {
-  switch (debounceState) {
-    case DB_IDLE:
-      if (switchInterruptFlag) {
-        switchInterruptFlag = false;
-        debounceStartTime = systemMs;
-        debounceState = DB_DEBOUNCE_PRESS;
-      }
-      break;
-
-    case DB_DEBOUNCE_PRESS:
-      if (systemMs - debounceStartTime >= 25) {
-        buttonEvent = true;
-        debounceState = DB_WAIT_RELEASE;
-      }
-      break;
-
-    case DB_WAIT_RELEASE:
-      if (switchInterruptFlag) {
-        switchInterruptFlag = false;
-        debounceStartTime = systemMs;
-        debounceState = DB_DEBOUNCE_RELEASE;
-      }
-      break;
-
-    case DB_DEBOUNCE_RELEASE:
-      if (systemMs - debounceStartTime >= 25) {
-        debounceState = DB_IDLE;
-      }
-      break;
-  }
-}
-
-// -------------------- Alarm / Chirp --------------------
+// ---------------- Alarm Chirp ----------------
 
 void updateAlarm() {
   static unsigned int frequency = 600;
