@@ -8,7 +8,7 @@ void initPWM(void)
 {
     // we have to edit the OCRnA registers
      // digital pin 6 to output which uses timer 4 (GOOD)
-    DDRH |= (1 << DDH5);
+    DDRH |= (1 << DDH3);
 
     //CHECK 
 
