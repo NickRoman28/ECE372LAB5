@@ -10,7 +10,7 @@ void initSPI(void) {
 
 
     // pull up resistors
-    PINB |= (1 << PINB0) | (1 << PINB1) | (1 << PINB2);
+    PORTB |= (1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2);
 
     
     // set SS high at first
@@ -52,16 +52,16 @@ void SPI_Send16(unsigned char address, unsigned char data) {
     PORTB |= (1 << PORTB0);    // SS HIGHz
 }
 
-void displaySmile() {
+void displaySmiley() {
     unsigned char smile[8] = {
         0x3C, 0x42, 0xA5, 0x81,
         0xA5, 0x99, 0x42, 0x3C
     };
     for (int i = 1; i <= 8; i++)
-        SPI_Send16(i, smiley[i - 1]);
+        SPI_Send16(i, smile[i - 1]);
 }
 
-void displayFrown() {
+void displayFrowny() {
     unsigned char frown[8] = {
         0x3C, 0x42, 0xA5, 0x81,
         0x99, 0xA5, 0x42, 0x3C
