@@ -66,7 +66,7 @@ volatile unsigned long switchTime = 0;
 
 unsigned char readMPURegister(unsigned char reg);
 int16_t combineBytes(unsigned char highByte, unsigned char lowByte);
-/*void readAccelerometer();
+void readAccelerometer();
 void wakeUpMPU6050();
 
 void updateSwitchState();
