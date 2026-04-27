@@ -45,3 +45,30 @@ void SPI_Send16(unsigned char address, unsigned char data) {
 
     PORTB |= (1 << PORTB0);    // SS HIGHz
 }
+//Claude recommendation (this init is separete from the last)
+void initSPI() {
+    InitSPI();
+    SPI_Send16(0x09, 0x00); // no BCD decode
+    SPI_Send16(0x0a, 0x03); // brightness
+    SPI_Send16(0x0b, 0x07); // scan all 8 rows
+    SPI_Send16(0x0c, 0x01); // normal operation
+    SPI_Send16(0x0f, 0x00); // no test mode
+}
+
+void displaySmile() {
+    unsigned char smile[8] = {
+        0x3C, 0x42, 0xA5, 0x81,
+        0xA5, 0x99, 0x42, 0x3C
+    };
+    for (int i = 1; i <= 8; i++)
+        SPI_Send16(i, smiley[i - 1]);
+}
+
+void displayFrown() {
+    unsigned char frown[8] = {
+        0x3C, 0x42, 0xA5, 0x81,
+        0x99, 0xA5, 0x42, 0x3C
+    };
+    for (int i = 1; i <= 8; i++)
+        SPI_Send16(i, frown[i - 1]);
+}
