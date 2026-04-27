@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include "I2C.h"
 
 // turn I2C hardware on
 void InitI2C() {
