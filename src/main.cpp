@@ -5,9 +5,16 @@
 #include "spi.h"
 #include "pwm.h"
 #include "switch.h"
-#include "I2Ch"
+#include "I2C.h"
 // put function declarations here:
 int myFunction(int, int);
+Serial.begin(9600);
+InitI2C();
+initTimer1();
+initPWM();
+initSPI();
+initSwitchPD0();
+sei();
 
 void setup() {
   // put your setup code here, to run once:
