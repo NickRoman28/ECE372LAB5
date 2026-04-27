@@ -234,9 +234,15 @@ void updateDisplayState() {
     previousState = displayState;
 
     if (displayState == DISPLAY_SMILEY) {
+<<<<<<< HEAD
       displaySmiley();
     } else {
       displayFrowny();
+=======
+      displaySmile();
+    } else {
+      displayFrown();
+>>>>>>> 0e8d88c10c28a06b008d4dc9bb6bc815caba6ff7
     }
   }
 }
