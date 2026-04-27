@@ -27,12 +27,12 @@ int16_t accelX = 0;
 int16_t accelY = 0;
 int16_t accelZ = 0;
 
-unsigned long systemMs        = 0;
+volatile unsigned long systemMs = 0;
 unsigned long lastSerialPrint = 0;
 unsigned long lastChirpUpdate = 0;
 
-bool alarmTriggered = false;
-bool buttonEvent    = false;
+volatile bool alarmTriggered = false;
+volatile bool buttonEvent = false;
 
 enum DisplayState {
   DISPLAY_SMILEY,
