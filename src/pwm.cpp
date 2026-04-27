@@ -30,27 +30,23 @@ void initPWM(void)
 }
 
 void incFrequency(unsigned int frequency) {
-    if (frequency == 0) { 
-        OCR4A = 0; 
-        OCR4C = 0; 
-        return; 
-    }
-    OCR4A = 16000000UL / frequency;
-    OCR4C = OCR4A / 2;  // 50% duty cycle
+    setFrequency(frequency);
 }
 
 void setFrequency(unsigned int frequency)
 {
     if (frequency == 0)
     {
+        TCCR4A &= ~(1 << COM4C1); // disconnect OC4C
         OCR4A = 0;
         OCR4C = 0;
         return;
     }
 
-    // f = 16MHz / (N * (1 + TOP))  where N = 1
+    TCCR4A |= (1 << COM4C1); // reconnect OC4C
+
     unsigned long top = (16000000UL / frequency) - 1;
 
-    OCR4A = (unsigned int)top;  // sets frequency via TOP
-    OCR4C = OCR4A / 2;          // 50% duty cycle
+    OCR4A = (unsigned int)top;
+    OCR4C = OCR4A / 2;
 }
