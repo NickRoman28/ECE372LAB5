@@ -1,10 +1,12 @@
 #include <avr/io.h>
 #include "I2C.h"
+#include "Arduino.h"
 
 // INCLUDE 0F8 status
 // turn I2C hardware on
 void InitI2C() {
   // Set SCL frequency to 100kHz
+  PRR0 &= ~(1 << PRTWI); // Disable power reduction for TWI
   TWSR = 0x00; // Prescaler value = 1
   TWBR = 0x48; // SCL frequency = F_CPU / (16 + 2 * TWBR * prescaler) //0x48 = 72 decimal
   // enable TWI
@@ -54,12 +56,14 @@ void Read_from(unsigned char SLA, unsigned char MEMADDRESS) {
     TWDR = (SLA << 1) | 0x01;
     TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
     while (!(TWCR & (1 << TWINT)));
+    TWCR = (1 << TWINT) | (1 << TWEN); // Clear TWEA for NACK after reading data
+    while (!(TWCR & (1 << TWINT)));
+    TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO); // Send STOP condition after reading data
+
 }
 
 // reads the data from the sensor after telling it which register to read from
 unsigned char Read_data() {
-    TWCR = (1 << TWINT) | (1 << TWEN);
-    while (!(TWCR & (1 << TWINT)));
     return TWDR;
 }
 

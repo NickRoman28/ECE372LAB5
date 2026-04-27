@@ -1,71 +1,52 @@
 #include <avr/io.h>
 #include "spi.h"
+#include "Arduino.h"
+#include <avr/interrupt.h>
 
-// LECTURE 21 CODE FOR SPI COMMUNICATION WITH ADXL345 ACCELEROMETER
 void initSPI(void) {
-    // set the SS, MOSI, and SCLK pin as output
-    DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2);
-    // set the MISO pin as input
-    DDRB &= ~(1 << DDB3);
+    DDRB = (1 << DDB2) | (1 << DDB1) | (1 << DDB0); // Ensure MOSI, SCK, and SS are outputs
+    PORTB |= (1 << PORTB0); // Set SS high
+    SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0) | (1 << SPR1); // Enable SPI, Master mode, set clock rate fck/16
+    SPCR &= ~((1 << CPOL) | (1 << CPHA));
 
-
-    // pull up resistors
-    PORTB |= (1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2);
-
-    
-    // set SS high at first
-    PORTB |= (1 << PORTB0);
-    // enable the interrupt, SPI, master mode
-    SPCR |= (1 << SPE)|(1 << MSTR);
-    //ADXL345 (Accelormeter) CPOL = 1, CPHA = 1
-    SPCR |= (1 << SPR1) | (1 << SPR0);
-    // set DORD to MSB first
-    SPCR &= ~(1 <<DORD);
-    // disable the SPI interrupt (not using ISRs)
-    SPCR &= ~(1 << SPIE);
-
-    SPI_Send16(0x09, 0x00);
-    SPI_Send16(0x0a, 0x03);
-    SPI_Send16(0x0b, 0x07);
-    SPI_Send16(0x0c, 0x01);
-    SPI_Send16(0x0f, 0x00);
 }
 
-void SPI_Write(unsigned char data) {
-    PORTB &= ~(1 << PORTB0);     // SS LOW (select)
-
-    SPDR = data;                 // send byte
-    while (!(SPSR & (1 << SPIF))); // wait done
-
-    PORTB |= (1 << PORTB0);      // SS HIGH (deselect)
-}
-
-void SPI_Send16(unsigned char address, unsigned char data) {
-    PORTB &= ~(1 << PORTB0);   // SS LOW
-
-    SPDR = address;            // send register
-    while (!(SPSR & (1 << SPIF)));
-
-    SPDR = data;               // send data
-    while (!(SPSR & (1 << SPIF)));
-
-    PORTB |= (1 << PORTB0);    // SS HIGHz
+void SPI_Write(unsigned char data, unsigned char isData) {
+    PORTB &= ~(1 << PORTB0); // Set SS low to select the device
+    SPDR = data; // Load data into SPI Data Register
+    while (!(SPSR & (1 << SPIF))); // Wait for transmission to complete
+    SPDR = isData;
+    while (!(SPSR & (1 << SPIF))); // Wait for transmission to complete
+    PORTB |= (1 << PORTB0); // Set SS high to deselect the device
 }
 
 void displaySmiley() {
-    unsigned char smile[8] = {
-        0x3C, 0x42, 0xA5, 0x81,
-        0xA5, 0x99, 0x42, 0x3C
-    };
-    for (int i = 1; i <= 8; i++)
-        SPI_Send16(i, smile[i - 1]);
+    SPI_Write(0x01, 0b00000000);
+    SPI_Write(0x02, 0b00100100);
+    SPI_Write(0x03, 0b00100100);
+    SPI_Write(0x04, 0b00000000);
+    SPI_Write(0x05, 0b00000000);
+    SPI_Write(0x06, 0b01000010);
+    SPI_Write(0x07, 0b00111100);
+    SPI_Write(0x08, 0b00000000);
+
 }
 
 void displayFrowny() {
-    unsigned char frown[8] = {
-        0x3C, 0x42, 0xA5, 0x81,
-        0x99, 0xA5, 0x42, 0x3C
-    };
-    for (int i = 1; i <= 8; i++)
-        SPI_Send16(i, frown[i - 1]);
+    SPI_Write(0x01, 0b00000000);
+    SPI_Write(0x02, 0b00100100);
+    SPI_Write(0x03, 0b00100100);
+    SPI_Write(0x04, 0b00000000);
+    SPI_Write(0x05, 0b00000000);
+    SPI_Write(0x06, 0b00111100);
+    SPI_Write(0x07, 0b01000010);
+    SPI_Write(0x08, 0b00000000);
+}
+
+void screen_init() {
+    SPI_Write(0x09, 0x00); // no decode
+    SPI_Write(0x0A, 0x03);
+    SPI_Write(0x0B, 0x07);
+    SPI_Write(0x0C, 0x01);
+    SPI_Write(0x0F, 0x00);
 }

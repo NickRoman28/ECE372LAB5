@@ -11,13 +11,17 @@
  * Initializes pull-up resistor on PD0 and sets it into input mode
  */
 
-void initSwitchPD0(){
-    //initialize as input using and with a 0
-    DDRD &= ~(1<<PD0);
-    //initialize the pullup resistor
-    PORTD |= (1 << PD0);
-    //initialize/enable external interrupts for PD0 (INT0)
-    EICRA &= ~(1 << ISC01);
-    EICRA |= (1 << ISC00);
-    EIMSK |= (1<<INT0);
+void initSwitchPE5(){
+    // Set PE5 as input
+    DDRE &= ~(1 << DDE5);
+
+    // Enable pull-up resistor
+    PORTE |= (1 << PE5);
+
+    // Configure INT5 (any logical change)
+    EICRB &= ~(1 << ISC51);
+    EICRB |= (1 << ISC50);
+
+    // Enable INT5 interrupt
+    EIMSK |= (1 << INT5);
 }

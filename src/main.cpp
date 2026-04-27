@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <avr/interrupt.h>
 
@@ -80,7 +81,7 @@ void displayFrowny();
 
 // ---------------- ISR ----------------
 
-ISR(INT0_vect) {
+ISR(INT5_vect) {
   switch (switchState) {
 
     case SWITCH_WAIT_PRESS:
@@ -110,8 +111,7 @@ void setup() {
 
   initPWM();
   setFrequency(0);
-
-  initSwitchPD0();
+  initSwitchPE5();
 
   initSPI();
   displaySmiley();
@@ -128,6 +128,9 @@ void loop() {
     ms = 0;
     systemMs++;
   }
+}
+int main(void) {
+    initSPI();
 
   readAccelerometer();
 
@@ -264,9 +267,12 @@ void updateAlarm() {
     if (frequency >= 2500) {
       direction = -1;
     }
+    displaySmiley();
 
     if (frequency <= 600) {
       direction = 1;
+    while (1) {
     }
   }
+}
 }
