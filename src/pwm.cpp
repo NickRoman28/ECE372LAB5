@@ -38,8 +38,9 @@ void initPWM(void)
 
 // WILL HAVE TO CONFIRM THAT THESE NUMBERS ARE RIGHT (WILL DELETE THIS MESSAGE WHEN COMPELTE)
 void incFrequency(unsigned int frequency) {
-OCR4A = 16000000 / frequency; //update the TOP based on the new frequency
-OCR4C=0.5*OCR4A;// update the OCR4C to make sure the Duty cycle stay the same
+     if (frequency == 0) { OCR4A = 0; OCR4C = 0; return; }
+    OCR4A = 16000000 / frequency; //update the TOP based on the new frequency
+    OCR4C=0.5*OCR4A;// update the OCR4C to make sure the Duty cycle stay the same
 }
  void setFrequency(unsigned int frequency)
 {

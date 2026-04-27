@@ -60,7 +60,7 @@ enum SwitchState {
 };
 
 volatile SwitchState switchState = SWITCH_WAIT_PRESS;
-unsigned long switchTime = 0;
+volatile unsigned long switchTime = 0;
 
 // ---------------- Function Prototypes ----------------
 
@@ -75,8 +75,8 @@ void updateAlarm();
 
 // These should exist in spi.cpp
 void initSPI();
-void displaySmile();
-void displayFrown(); */
+void displaySmiley();
+void displayFrowny(); 
 
 // ---------------- ISR ----------------
 
@@ -235,10 +235,10 @@ void updateDisplayState() {
     previousState = displayState;
 
     if (displayState == DISPLAY_SMILEY) {
-        displaySmile();
+        displaySmiley();
       } 
       else {
-        displayFrown();
+        displayFrowny();
       }
     }
 }

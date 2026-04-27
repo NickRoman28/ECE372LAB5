@@ -18,7 +18,7 @@ void initSPI(void) {
     // enable the interrupt, SPI, master mode
     SPCR |= (1 << SPE)|(1 << MSTR);
     //ADXL345 (Accelormeter) CPOL = 1, CPHA = 1
-    SPCR |=(1 << CPOL)|(1 << CPHA)|(1 << SPR1)|(1 << SPR0);
+    SPCR |= (1 << SPR1) | (1 << SPR0);
     // set DORD to MSB first
     SPCR &= ~(1 <<DORD);
     // disable the SPI interrupt (not using ISRs)
