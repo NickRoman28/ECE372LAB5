@@ -2,7 +2,7 @@
 #include "spi.h"
 
 // LECTURE 21 CODE FOR SPI COMMUNICATION WITH ADXL345 ACCELEROMETER
-void InitSPI(void) {
+void initSPI(void) {
     // set the SS, MOSI, and SCLK pin as output
     DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2);
     // set the MISO pin as input
@@ -10,7 +10,7 @@ void InitSPI(void) {
 
 
     // pull up resistors
-    PINB |= (1 << PINB0) | (1 << PINB1) | (1 << PINB2);
+    PORTB |= (1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2);
 
     
     // set SS high at first
@@ -23,6 +23,12 @@ void InitSPI(void) {
     SPCR &= ~(1 <<DORD);
     // disable the SPI interrupt (not using ISRs)
     SPCR &= ~(1 << SPIE);
+
+    SPI_Send16(0x09, 0x00);
+    SPI_Send16(0x0a, 0x03);
+    SPI_Send16(0x0b, 0x07);
+    SPI_Send16(0x0c, 0x01);
+    SPI_Send16(0x0f, 0x00);
 }
 
 void SPI_Write(unsigned char data) {
@@ -44,4 +50,22 @@ void SPI_Send16(unsigned char address, unsigned char data) {
     while (!(SPSR & (1 << SPIF)));
 
     PORTB |= (1 << PORTB0);    // SS HIGHz
+}
+
+void displaySmiley() {
+    unsigned char smile[8] = {
+        0x3C, 0x42, 0xA5, 0x81,
+        0xA5, 0x99, 0x42, 0x3C
+    };
+    for (int i = 1; i <= 8; i++)
+        SPI_Send16(i, smile[i - 1]);
+}
+
+void displayFrowny() {
+    unsigned char frown[8] = {
+        0x3C, 0x42, 0xA5, 0x81,
+        0x99, 0xA5, 0x42, 0x3C
+    };
+    for (int i = 1; i <= 8; i++)
+        SPI_Send16(i, frown[i - 1]);
 }

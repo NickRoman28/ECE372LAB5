@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include "I2C.h"
 
+// INCLUDE 0F8 status
 // turn I2C hardware on
 void InitI2C() {
   // Set SCL frequency to 100kHz

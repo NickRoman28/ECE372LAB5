@@ -63,8 +63,13 @@ void startTimer1() {
     TIFR1 |= (1 << OCF1A);
 
     // Prescaler = 256
+    /*
     TCCR1B &= ~((1 << CS11) | (1 << CS10));
-    TCCR1B |= (1 << CS12);
+    TCCR1B |= (1 << CS12);*/
+
+    // Prescaler = 64
+    TCCR1B &= ~((1 << CS12) | (1 << CS10));
+    TCCR1B |= (1 << CS11) | (1 << CS10);
 }
 
 void stopTimer1() {
