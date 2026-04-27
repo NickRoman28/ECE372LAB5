@@ -19,8 +19,8 @@
 #define ACCEL_ZOUT_L 0x40
 
 // Change these after checking Serial Monitor values
-#define Y_TILT_THRESHOLD 11500
-#define Z_TILT_THRESHOLD 11500
+#define Y_TILT_THRESHOLD 11585
+#define Z_TILT_THRESHOLD 11585
 
 // Timer1 millisecond flag from timer.cpp
 volatile unsigned char ms = 0;
@@ -64,9 +64,9 @@ unsigned long switchTime = 0;
 
 // ---------------- Function Prototypes ----------------
 
-/* unsigned char readMPURegister(unsigned char reg);
+unsigned char readMPURegister(unsigned char reg);
 int16_t combineBytes(unsigned char highByte, unsigned char lowByte);
-void readAccelerometer();
+/*void readAccelerometer();
 void wakeUpMPU6050();
 
 void updateSwitchState();
