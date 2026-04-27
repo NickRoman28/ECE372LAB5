@@ -64,7 +64,7 @@ unsigned long switchTime = 0;
 
 // ---------------- Function Prototypes ----------------
 
-unsigned char readMPURegister(unsigned char reg);
+/* unsigned char readMPURegister(unsigned char reg);
 int16_t combineBytes(unsigned char highByte, unsigned char lowByte);
 void readAccelerometer();
 void wakeUpMPU6050();
@@ -75,8 +75,8 @@ void updateAlarm();
 
 // These should exist in spi.cpp
 void initSPI();
-void displaySmiley();
-void displayFrowny();
+void displaySmile();
+void displayFrown(); */
 
 // ---------------- ISR ----------------
 
@@ -234,9 +234,9 @@ void updateDisplayState() {
     previousState = displayState;
 
     if (displayState == DISPLAY_SMILEY) {
-      displaySmiley();
+      displaySmile();
     } else {
-      displayFrowny();
+      displayFrown();
     }
   }
 }
