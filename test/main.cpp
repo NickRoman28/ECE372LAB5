@@ -72,11 +72,12 @@ int main() {
   startTimer1();
 
   initPWM();
-  setFrequency(0);
+  buzzerOff();
 
   initSwitchPD0();
 
   initSPI();
+  screen_init();
   displaySmiley();
 
   sei();
@@ -96,7 +97,7 @@ int main() {
     if (buttonEvent) {
       buttonEvent = false;
       alarmTriggered = false;
-      setFrequency(0);
+      buzzerOff();
     }
 
     if (abs(accelY) > Y_TILT_THRESHOLD || abs(accelZ) > Z_TILT_THRESHOLD) {
@@ -224,19 +225,19 @@ void updateDisplayState() {
 // ---------------- Alarm Chirp ----------------
 
 void updateAlarm() {
-  static unsigned int frequency = 600;
+  static unsigned int frequency = 1000;
   static int direction = 1;
 
   if (!alarmTriggered) {
-    setFrequency(0);
+    buzzerOff();
     return;
   }
 
-  if (systemMs - lastChirpUpdate >= 20) {
+  if (systemMs - lastChirpUpdate >= 50) {
     lastChirpUpdate = systemMs;
-    setFrequency(frequency);
-    frequency += direction * 50;
-    if (frequency >= 2500) direction = -1;
-    if (frequency <= 600)  direction = 1;
+    buzzerOn(frequency);
+    frequency += direction * 100;
+    if (frequency >= 3000) direction = -1;
+    if (frequency <= 1000) direction = 1;
   }
 }
