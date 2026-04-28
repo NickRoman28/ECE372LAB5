@@ -2,7 +2,9 @@
 #define PWM_H
 
 void initPWM(void);
-void incFrequency(unsigned int frequency);
-void setFrequency(unsigned int frequency);
+void buzzerOn(unsigned int f);
+void buzzerOff(void);
+void incFrequency(void);
+void decFrequency(void);
 
 #endif
