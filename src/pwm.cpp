@@ -29,24 +29,37 @@ void initPWM(void)
     OCR4C = 0;
 }
 
-void incFrequency(unsigned int frequency) {
-    setFrequency(frequency);
-}
-
-void setFrequency(unsigned int frequency)
-{
-    if (frequency == 0)
-    {
-        TCCR4A &= ~(1 << COM4C1); // disconnect OC4C
-        OCR4A = 0;
-        OCR4C = 0;
+void buzzerOn(unsigned int f) {
+    unsigned long ocr;
+    if (f ==0) {
+        buzzerOff();
         return;
     }
 
-    TCCR4A |= (1 << COM4C1); // reconnect OC4C
+    ocr = (16000000UL/ (2UL * 8UL * f)) -1;
+    if (ocr > 65535UL) {
+    ocr = 65535UL;
+    }
 
-    unsigned long top = (16000000UL / frequency) - 1;
+    OCR4A = (unsigned int)ocr;
 
-    OCR4A = (unsigned int)top;
-    OCR4C = OCR4A / 2;
+    
+
+void incFrequency() {
+   unsigned int f;
+    buzzerEnable();
+    for (f = 1000; f <= 3000; f+=100) {
+        buzzerOn(f);
+        delayMs(50);
 }
+
+void decFrequency() {
+    unsigned int f;
+    buzzerEnable();
+    for (f = 3000; f>= 1000; f-=100) {
+        buzzerOn(f);
+        delayMs(50);
+    }
+}
+
+
